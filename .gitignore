@@ -30,6 +30,7 @@ outputs/*
 !outputs/classification_report_resnet18_finetune.csv
 !outputs/evaluation_summary_resnet18_finetune.json
 !outputs/classification_report_resnet18_finetune.csv
+!outputs/prediction_demo.png
 
 # IDE settings
 .vscode/
