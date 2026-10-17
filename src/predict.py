@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -13,16 +14,8 @@ PROJECT_DIR = Path(__file__).resolve().parent.parent
 MODEL_PATH = PROJECT_DIR / "models" / "best_resnet18_finetune.pth"
 
 CLASSES = [
-    "airplane",
-    "automobile",
-    "bird",
-    "cat",
-    "deer",
-    "dog",
-    "frog",
-    "horse",
-    "ship",
-    "truck",
+    "airplane", "automobile", "bird", "cat", "deer",
+    "dog", "frog", "horse", "ship", "truck",
 ]
 
 IMAGE_TRANSFORM = transforms.Compose([
@@ -63,16 +56,80 @@ def predict_image(image_path, model, device):
         probabilities, k=3
     )
 
-    results = []
-    for probability, index in zip(
-        top_probabilities.cpu().tolist(),
-        top_indices.cpu().tolist(),
-    ):
-        results.append(
-            f"{CLASSES[index]}: {probability * 100:.2f}%"
+    # Keep each class index paired with its correct probability.
+    results = [
+        (CLASSES[int(index)], float(probability) * 100)
+        for index, probability in zip(
+            top_indices.cpu().tolist(),
+            top_probabilities.cpu().tolist(),
+        )
+    ]
+
+    return image.copy(), results
+
+
+def show_results(image, results, image_path):
+    labels = [name.title() for name, _ in results]
+    scores = [score for _, score in results]
+
+    fig, (ax_image, ax_chart) = plt.subplots(
+        1, 2, figsize=(12, 6),
+        gridspec_kw={"width_ratios": [1, 1.25]},
+    )
+
+    fig.suptitle(
+        "CIFAR-10 Image Classification | ResNet18",
+        fontsize=16,
+        fontweight="bold",
+    )
+
+    # Display the original image.
+    ax_image.imshow(image)
+    ax_image.set_title("Input Image", fontsize=13)
+    ax_image.axis("off")
+
+    # Display top-3 predicted classes.
+    positions = list(range(len(labels)))
+    bars = ax_chart.barh(positions, scores, height=0.58)
+
+    ax_chart.set_yticks(positions)
+    ax_chart.set_yticklabels(labels, fontsize=11)
+    ax_chart.invert_yaxis()
+    ax_chart.set_xlim(0, 120)
+    ax_chart.set_xlabel("Softmax score (%)")
+    ax_chart.set_title("Top 3 Predictions", fontsize=13)
+    ax_chart.grid(axis="x", linestyle="--", alpha=0.3)
+    ax_chart.set_axisbelow(True)
+
+    for bar, score in zip(bars, scores):
+        ax_chart.text(
+            min(score + 1.5, 101),
+            bar.get_y() + bar.get_height() / 2,
+            f"{score:.2f}%",
+            va="center",
+            fontsize=11,
+            fontweight="bold",
         )
 
-    return results
+    best_class, best_score = results[0]
+
+    fig.text(
+    0.5, 0.075,
+    f"Predicted class: {best_class.title()} ({best_score:.2f}%)",
+    ha="center",
+    fontsize=13,
+    fontweight="bold",
+    )
+
+    fig.text(
+        0.5, 0.025,
+        f"Image: {Path(image_path).name}",
+        ha="center",
+        fontsize=9,
+    )
+
+    plt.tight_layout(rect=(0, 0.10, 1, 0.92))
+    plt.show()
 
 
 def main():
@@ -91,17 +148,13 @@ def main():
         image_path = filedialog.askopenfilename(
             title="Select an image to classify",
             filetypes=[
-                (
-                    "Image files",
-                    "*.jpg *.jpeg *.png *.bmp *.webp",
-                ),
+                ("Image files", "*.jpg *.jpeg *.png *.bmp *.webp"),
                 ("All files", "*.*"),
             ],
             parent=root,
         )
 
         if not image_path:
-            print("No image selected. Exiting.")
             return
 
         device = torch.device(
@@ -109,17 +162,13 @@ def main():
         )
 
         model = load_model(MODEL_PATH, device)
-        results = predict_image(image_path, model, device)
+        image, results = predict_image(image_path, model, device)
 
-        result_text = "Top 3 predictions:\n\n" + "\n".join(results)
+        print("Top 3 predictions:")
+        for name, score in results:
+            print(f"{name}: {score:.2f}%")
 
-        print(result_text)
-
-        messagebox.showinfo(
-            "Image Classification Results",
-            result_text,
-            parent=root,
-        )
+        show_results(image, results, image_path)
 
     except Exception as error:
         messagebox.showerror(
