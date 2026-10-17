@@ -76,11 +76,25 @@ The model performs well across most classes. Cat and dog are among the more chal
 
 The classification report provides additional per-class evaluation metrics.
 
+## Pretrained Model
+
+The fine-tuned ResNet18 checkpoint is available on Hugging Face.
+
+- **Model:** [CIFAR-10 ResNet18 Fine-Tuned](https://huggingface.co/aidinpho/cifar10-resnet18-finetuned)
+- **Test accuracy:** 93.41%
+- **Test loss:** 0.2343
+- **Checkpoint:** `best_resnet18_finetune.pth`
+- **Checkpoint size:** Approximately 44.8 MB
+
+Model weights are hosted separately to keep the GitHub repository lightweight.
+
+Download `best_resnet18_finetune.pth` from the Hugging Face repository and place it in the project's `models/` directory before running evaluation or prediction.
+
 ## Interactive Prediction Demo
 
 The project includes an interactive script that lets you select an image from your computer and view the model's top three predictions.
 
-After obtaining the trained checkpoint, run:
+After downloading the checkpoint, run:
 
 ```bash
 python src/predict.py
@@ -88,7 +102,7 @@ python src/predict.py
 
 The script opens a file-selection dialog and displays the top three predicted classes with their model scores.
 
-**Note:** This demo is intended for images resembling the CIFAR-10 classes. Its results on arbitrary internet images may differ from its benchmark performance on the CIFAR-10 test set.
+**Note:** This demo is intended for images resembling the CIFAR-10 classes. Its results on arbitrary internet images may differ from its benchmark performance on the CIFAR-10 test set. The displayed scores are softmax outputs and are not necessarily calibrated confidence estimates.
 
 ## Project Structure
 
@@ -106,10 +120,21 @@ image-classification/
 │   ├── train_resnet18_finetune.py
 │   ├── evaluate.py
 │   ├── evaluate_improved_v2.py
-│   └── evaluate_resnet18_finetune.py
+│   ├── evaluate_resnet18_finetune.py
+│   ├── compare_models.py
+│   ├── explore_dataset.py
+│   ├── plot_history.py
+│   ├── plot_improved_history.py
+│   ├── visualize_batch.py
+│   ├── visualize_errors.py
+│   ├── visualize_errors_v2.py
+│   ├── test_dataloader.py
+│   ├── test_improved_model.py
+│   ├── test_optimizer_step.py
+│   └── test_training_step.py
 ├── test/                    # Manual prediction images
-├── tests/                   # Automated tests
-│   └── test_model.py
+├── tests/
+│   └── test_model.py        # Automated pytest tests
 ├── data/                    # Downloaded dataset (not tracked)
 ├── models/                  # Model checkpoints (not tracked)
 ├── .gitignore
@@ -117,18 +142,16 @@ image-classification/
 └── README.md
 ```
 
-The `data/` and `models/` directories are excluded from Git. The structure above highlights the main project files; additional helper scripts may also exist in `src/`.
+The `data/` and `models/` directories are excluded from Git. The structure above lists the main project files; generated files and Python cache directories may be omitted.
 
 ## Installation
 
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone https://github.com/aidinpho/image-classification.git
 cd image-classification
 ```
-
-Replace `<YOUR_GITHUB_REPOSITORY_URL>` with your repository URL.
 
 ### 2. Create a virtual environment
 
@@ -154,6 +177,8 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
+The project uses PyTorch and Torchvision. A compatible Python and PyTorch installation is required; GPU acceleration is optional.
+
 ## Running the Project
 
 ### Train the fine-tuned ResNet18 model
@@ -166,6 +191,14 @@ The training pipeline downloads CIFAR-10 when needed, trains the model, and save
 
 ### Evaluate the trained model
 
+First, download the checkpoint from the [Hugging Face model repository](https://huggingface.co/aidinpho/cifar10-resnet18-finetuned) and place it at:
+
+```text
+models/best_resnet18_finetune.pth
+```
+
+Then run:
+
 ```bash
 python src/evaluate_resnet18_finetune.py
 ```
@@ -174,13 +207,13 @@ The evaluation script uses the trained checkpoint and generates a classification
 
 ### Run interactive image prediction
 
+After placing the checkpoint in the `models/` directory, run:
+
 ```bash
 python src/predict.py
 ```
 
 Select an image in the file dialog to view the model's top three predictions.
-
-**Checkpoint note:** Model checkpoint files are excluded from this repository because of their size. Train the model before running evaluation or prediction, or obtain a compatible checkpoint separately.
 
 ## Automated Tests
 
