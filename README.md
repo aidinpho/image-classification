@@ -19,6 +19,14 @@ The best-performing model in the recorded experiments was **ResNet18 Fine-Tuning
 
 *These results come from the recorded experiments. Training configurations differ, so this table should be considered a comparison of experimental runs rather than a controlled benchmark.*
 
+
+## Prediction Demo
+
+The following example shows the model's top three predictions for an input image.
+
+![ResNet18 prediction demo](outputs/prediction_demo.png)
+
+
 ## Dataset
 
 This project uses [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html), a dataset of 60,000 color images across 10 classes.
