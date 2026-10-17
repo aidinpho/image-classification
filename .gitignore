@@ -1,0 +1,39 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Downloaded datasets
+data/
+
+# Model checkpoints and weights
+models/
+*.pth
+*.pt
+
+# Training outputs
+outputs/*
+
+# Keep selected results for GitHub
+!outputs/comparison_train_accuracy.png
+!outputs/comparison_train_loss.png
+!outputs/comparison_val_accuracy.png
+!outputs/comparison_val_loss.png
+!outputs/confusion_matrix_resnet18_finetune.png
+!outputs/classification_report_resnet18_finetune.csv
+!outputs/evaluation_summary_resnet18_finetune.json
+!outputs/classification_report_resnet18_finetune.csv
+
+# IDE settings
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db

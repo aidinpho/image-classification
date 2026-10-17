@@ -1,0 +1,6 @@
+{
+    "model": "ResNet18 fine-tuned",
+    "test_images": 10000,
+    "test_loss": 0.23434387155771255,
+    "test_accuracy": 0.9341
+}
